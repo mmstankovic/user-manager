@@ -12,6 +12,14 @@ body {
 
 h1 {
     text-align: center;
+    font-size: 32px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin-bottom: 2.5rem;
+    background: linear-gradient(90deg, #0f766e, #3b82f6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 button {
@@ -33,9 +41,26 @@ button:active {
     transform: scale(0.96);
 }
 
+button.active {
+    background: #0f766e;
+    opacity: 0.8;
+}
+
+input {
+    padding: 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    flex: 1;
+    outline: none;
+}
+
+input:focus {
+    border-color: #0f766e;
+}
+
 #loadBtn:disabled {
     background-color: #9ca3af;
-    cursor:not-allowed;
+    cursor: not-allowed;
     opacity: 0.5;
 }
 
@@ -66,4 +91,11 @@ button:active {
 #container {
     max-width: 700px;
     margin: auto;
+}
+
+.controls {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    gap: 10px;
 }
