@@ -1,3 +1,4 @@
+const backdrop = document.querySelector('#backdrop')
 const container = document.querySelector('#container')
 const btnLoad = document.querySelector('#loadBtn')
 const statusMessage = document.querySelector('#status')
@@ -13,6 +14,7 @@ let searchTerm = ''
 let selectedSort = ''
 let isEditing = false
 let selectedUserToEdit = null
+let selectedToDelete = null
 
 async function fetchUsers() {
     loading = true
@@ -42,6 +44,7 @@ async function fetchUsers() {
 function render() {
     userList.innerHTML = ''
     statusMessage.textContent = ''
+    backdrop.innerHTML = ''
     btnLoad.disabled = loading
 
     if (loading) {
@@ -94,21 +97,31 @@ function render() {
             div.appendChild(phone)
             div.appendChild(website)
 
-            if(!selectedUserToEdit || selectedUserToEdit.id !== user.id) {
+            const divActions = document.createElement('div')
+            divActions.classList.add('user-actions')
+
+            if (!selectedUserToEdit || selectedUserToEdit.id !== user.id) {
                 const btnEdit = document.createElement('button')
                 btnEdit.textContent = 'Edit'
                 btnEdit.classList.add('edit-btn')
 
-                div.appendChild(btnEdit)
+                divActions.appendChild(btnEdit)
             }
+
+            const btnDelete = document.createElement('button')
+            btnDelete.textContent = 'Delete'
+            btnDelete.classList.add('delete-btn')
+
+            divActions.appendChild(btnDelete)
+            div.appendChild(divActions)
 
             li.appendChild(div)
 
-            if(isEditing && selectedUserToEdit?.id === user.id) {
+            if (isEditing && selectedUserToEdit?.id === user.id) {
                 const form = document.createElement('form')
                 form.id = 'edit-form'
 
-                form.addEventListener('submit', function(e) {
+                form.addEventListener('submit', function (e) {
                     e.preventDefault()
 
                     const input = e.target.querySelector('input')
@@ -116,7 +129,7 @@ function render() {
                     updateUserEmail(input.value)
 
                     input.value = ''
-                }) 
+                })
 
                 const input = document.createElement('input')
                 input.type = 'text'
@@ -147,25 +160,72 @@ function render() {
 
         userList.appendChild(li)
     })
+
+    if (selectedToDelete) {
+        const modal = document.createElement('div')
+        modal.classList.add('modal')
+
+        const title = document.createElement('h3')
+        title.textContent = 'Delete user'
+        modal.prepend(title)
+
+        const msg = document.createElement('p')
+        msg.textContent = 'Are you sure you want to delete this user?'
+        modal.appendChild(msg)
+
+        const actions = document.createElement('div')
+        actions.classList.add('modal-actions')
+
+        const cancelBtn = document.createElement('button')
+        cancelBtn.textContent = 'Cancel'
+        cancelBtn.classList.add('cancel-btn')
+
+        const confirmBtn = document.createElement('button')
+        confirmBtn.textContent = 'Ok'
+        confirmBtn.classList.add('confirm-btn')
+        
+        actions.appendChild(cancelBtn)
+        actions.appendChild(confirmBtn)
+
+        modal.appendChild(actions)
+        backdrop.appendChild(modal)
+    }
 }
 
 render()
 
 function updateUserEmail(val) {
-    if(val.trim()=== '') return 
+    if (val.trim() === '') return
 
-    users = users.map((user) => user.id === selectedUserToEdit.id ? {...user, email: val} : user)
+    users = users.map((user) => user.id === selectedUserToEdit.id ? { ...user, email: val } : user)
 
-    isEditing = false 
-    selectedUserToEdit = null 
+    isEditing = false
+    selectedUserToEdit = null
 
     render()
 }
 
 function cancelUpdateUserEmail() {
-    isEditing = false 
+    isEditing = false
     selectedUserToEdit = null
 
+    render()
+}
+
+function deleteUserFromList() {
+    users = users.filter((item) => item.id !== selectedToDelete)
+
+    if (selectedUser?.id === selectedToDelete) {
+        selectedUser = null
+    }
+
+    selectedToDelete = null
+
+    render()
+}
+
+function cancelDeleteUser() {
+    selectedToDelete = null
     render()
 }
 
@@ -176,9 +236,9 @@ btnLoad.addEventListener('click', function () {
 userList.addEventListener('click', function (e) {
     const li = e.target.closest('li')
 
-    if(!li) return
+    if (!li) return
 
-    if(e.target.closest('.cancel-btn')) {
+    if (e.target.closest('.cancel-btn')) {
         cancelUpdateUserEmail()
         return
     }
@@ -190,9 +250,17 @@ userList.addEventListener('click', function (e) {
         selectedUserToEdit = user
 
         render()
-        return 
+        return
     }
-    if(e.target.closest('#edit-form')) {
+    if (e.target.closest('.delete-btn')) {
+        const id = li.dataset.id
+        const userToDelete = users.find((user) => user.id === Number(id))
+
+        selectedToDelete = userToDelete.id
+        render()
+    }
+
+    if (e.target.closest('#edit-form')) {
         return
     }
 
@@ -202,7 +270,7 @@ userList.addEventListener('click', function (e) {
     if (!user) return
 
     selectedUser = selectedUser?.id === user.id ? null : user
-    
+
     render()
 })
 
@@ -225,4 +293,18 @@ sortContainer.addEventListener('click', function (e) {
         selectedSort = 'desc'
     }
     render()
+})
+
+backdrop.addEventListener('click', function (e) {
+    if (e.target === backdrop) {
+        cancelDeleteUser()
+        return
+    }
+    if (e.target.closest('.confirm-btn')) {
+        deleteUserFromList()
+        return
+    }
+    if (e.target.closest('.cancel-btn')) {
+        cancelDeleteUser()
+    }
 })
