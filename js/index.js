@@ -5,6 +5,7 @@ const statusMessage = document.querySelector('#status')
 const userList = document.querySelector('#userList')
 const searchInput = document.querySelector('#search')
 const sortContainer = document.querySelector('#sort-container')
+const addUserForm = document.querySelector('#add-user-form')
 
 let loading = false
 let error = null
@@ -194,6 +195,20 @@ function render() {
 
 render()
 
+function addNewUser(name, email) {
+    const newUser = {
+        id: Date.now(),
+        name,
+        email,
+        phone: 'N/A',
+        website: 'N/A'
+    }
+
+    users = [...users, newUser]
+
+    render()
+}
+
 function updateUserEmail(val) {
     if (val.trim() === '') return
 
@@ -313,4 +328,17 @@ backdrop.addEventListener('click', function (e) {
     if (e.target.closest('.cancel-btn')) {
         cancelDeleteUser()
     }
+})
+
+addUserForm.addEventListener('submit', function(e) {
+    e.preventDefault()
+
+    const name = e.target.name.value.trim()
+    const email = e.target.email.value.trim()
+
+    if(!name || !email) return
+
+    addNewUser(name, email)
+
+    e.target.reset()
 })
