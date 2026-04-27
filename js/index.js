@@ -16,6 +16,7 @@ let selectedSort = ''
 let isEditing = false
 let selectedUserToEdit = null
 let selectedToDelete = null
+let toastMessage = ''
 
 async function fetchUsers() {
     loading = true
@@ -191,6 +192,16 @@ function render() {
         modal.appendChild(actions)
         backdrop.appendChild(modal)
     }
+
+    document.querySelectorAll('.toast').forEach(t => t.remove())
+
+    if(toastMessage) {
+        const toast = document.createElement('div')
+        toast.textContent = toastMessage
+        toast.classList.add('toast')
+
+        document.body.appendChild(toast)
+    }
 }
 
 render()
@@ -204,9 +215,9 @@ function addNewUser(name, email) {
         website: 'N/A'
     }
 
-    users = [...users, newUser]
+    users = [newUser, ...users]
 
-    render()
+    showToast('✅ User created')
 }
 
 function updateUserEmail(val) {
@@ -217,7 +228,7 @@ function updateUserEmail(val) {
     isEditing = false
     selectedUserToEdit = null
 
-    render()
+    showToast('✏️ User updated')
 }
 
 function cancelUpdateUserEmail() {
@@ -236,11 +247,27 @@ function deleteUserFromList() {
 
     selectedToDelete = null
 
-    render()
+    showToast('🗑️ User deleted')
 }
 
 function cancelDeleteUser() {
     selectedToDelete = null
+    render()
+}
+
+let toastTimeout
+
+function showToast(message) {
+    toastMessage = message 
+
+    clearTimeout(toastTimeout)
+
+    toastTimeout = setTimeout(() => {
+        toastMessage = ''
+        
+        render()
+    }, 3000)
+    
     render()
 }
 
