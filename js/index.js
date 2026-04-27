@@ -183,7 +183,7 @@ function render() {
         const confirmBtn = document.createElement('button')
         confirmBtn.textContent = 'Ok'
         confirmBtn.classList.add('confirm-btn')
-        
+
         actions.appendChild(cancelBtn)
         actions.appendChild(confirmBtn)
 
@@ -274,10 +274,16 @@ userList.addEventListener('click', function (e) {
     render()
 })
 
-searchInput.addEventListener('input', function (e) {
-    searchTerm = e.target.value
+let timeout
 
-    render()
+searchInput.addEventListener('input', function (e) {
+    clearTimeout(timeout)
+
+    timeout = setTimeout(() => {
+        searchTerm = e.target.value
+
+        render()
+    }, 200)
 })
 
 sortContainer.addEventListener('click', function (e) {
