@@ -120,43 +120,7 @@ function render() {
             li.appendChild(div)
 
             if (isEditing && selectedUserToEdit?.id === user.id) {
-                const form = document.createElement('form')
-                form.id = 'edit-form'
-
-                form.addEventListener('submit', function (e) {
-                    e.preventDefault()
-
-                    const input = e.target.querySelector('input')
-
-                    updateUserEmail(input.value)
-
-                    input.value = ''
-                })
-
-                const input = document.createElement('input')
-                input.type = 'text'
-                input.placeholder = 'Update email'
-                input.id = 'update-email'
-                input.value = user.email
-
-                const actionsDiv = document.createElement('div')
-
-                const btnCancel = document.createElement('button')
-                btnCancel.textContent = 'Cancel'
-                btnCancel.classList.add('cancel-btn')
-
-                const btnSave = document.createElement('button')
-                btnSave.textContent = 'Save'
-                btnSave.type = 'submit'
-                btnSave.classList.add('save-btn')
-
-                actionsDiv.appendChild(btnCancel)
-                actionsDiv.appendChild(btnSave)
-
-                form.appendChild(input)
-                form.appendChild(actionsDiv)
-
-                li.appendChild(form)
+                li.appendChild(createEditForm(user))
             }
         }
 
@@ -164,38 +128,12 @@ function render() {
     })
 
     if (selectedToDelete) {
-        const modal = document.createElement('div')
-        modal.classList.add('modal')
-
-        const title = document.createElement('h3')
-        title.textContent = 'Delete user'
-        modal.prepend(title)
-
-        const msg = document.createElement('p')
-        msg.textContent = 'Are you sure you want to delete this user?'
-        modal.appendChild(msg)
-
-        const actions = document.createElement('div')
-        actions.classList.add('modal-actions')
-
-        const cancelBtn = document.createElement('button')
-        cancelBtn.textContent = 'Cancel'
-        cancelBtn.classList.add('cancel-btn')
-
-        const confirmBtn = document.createElement('button')
-        confirmBtn.textContent = 'Ok'
-        confirmBtn.classList.add('confirm-btn')
-
-        actions.appendChild(cancelBtn)
-        actions.appendChild(confirmBtn)
-
-        modal.appendChild(actions)
-        backdrop.appendChild(modal)
+        renderDeleteModal()
     }
 
     document.querySelectorAll('.toast').forEach(t => t.remove())
 
-    if(toastMessage) {
+    if (toastMessage) {
         const toast = document.createElement('div')
         toast.textContent = toastMessage
         toast.classList.add('toast')
@@ -205,6 +143,74 @@ function render() {
 }
 
 render()
+
+function createEditForm(user) {
+    const form = document.createElement('form')
+    form.id = 'edit-form'
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault()
+
+        const input = e.target.querySelector('input')
+
+        updateUserEmail(input.value)
+
+        input.value = ''
+    })
+
+    const input = document.createElement('input')
+    input.type = 'text'
+    input.placeholder = 'Update email'
+    input.id = 'update-email'
+    input.value = user.email
+
+    const actionsDiv = document.createElement('div')
+
+    const btnCancel = document.createElement('button')
+    btnCancel.textContent = 'Cancel'
+    btnCancel.type = 'button'
+    btnCancel.classList.add('cancel-btn')
+
+    const btnSave = document.createElement('button')
+    btnSave.textContent = 'Save'
+    btnSave.type = 'submit'
+    btnSave.classList.add('save-btn')
+
+    actionsDiv.append(btnCancel, btnSave)
+    form.append(input, actionsDiv)
+
+    return form
+}
+
+function renderDeleteModal() {
+    const modal = document.createElement('div')
+    modal.classList.add('modal')
+
+    const title = document.createElement('h3')
+    title.textContent = 'Delete user'
+    modal.prepend(title)
+
+    const msg = document.createElement('p')
+    msg.textContent = 'Are you sure you want to delete this user?'
+    modal.appendChild(msg)
+
+    const actions = document.createElement('div')
+    actions.classList.add('modal-actions')
+
+    const cancelBtn = document.createElement('button')
+    cancelBtn.textContent = 'Cancel'
+    cancelBtn.classList.add('cancel-btn')
+
+    const confirmBtn = document.createElement('button')
+    confirmBtn.textContent = 'Ok'
+    confirmBtn.classList.add('confirm-btn')
+
+    actions.appendChild(cancelBtn)
+    actions.appendChild(confirmBtn)
+
+    modal.appendChild(actions)
+    backdrop.appendChild(modal)
+}
 
 function addNewUser(name, email) {
     const newUser = {
@@ -258,16 +264,16 @@ function cancelDeleteUser() {
 let toastTimeout
 
 function showToast(message) {
-    toastMessage = message 
+    toastMessage = message
 
     clearTimeout(toastTimeout)
 
     toastTimeout = setTimeout(() => {
         toastMessage = ''
-        
+
         render()
     }, 3000)
-    
+
     render()
 }
 
@@ -357,13 +363,13 @@ backdrop.addEventListener('click', function (e) {
     }
 })
 
-addUserForm.addEventListener('submit', function(e) {
+addUserForm.addEventListener('submit', function (e) {
     e.preventDefault()
 
     const name = e.target.name.value.trim()
     const email = e.target.email.value.trim()
 
-    if(!name || !email) return
+    if (!name || !email) return
 
     addNewUser(name, email)
 
