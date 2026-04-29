@@ -10,6 +10,14 @@ const addUserForm = document.querySelector('#add-user-form')
 let loading = false
 let error = null
 let users = []
+
+try {
+    const stored = localStorage.getItem('user-list')
+    users = stored ? JSON.parse(stored) : []
+} catch (err) {
+    console.error('Failed to parse users from localStorage')
+    users = []
+}
 let selectedUser = null
 let searchTerm = ''
 let selectedSort = ''
@@ -19,6 +27,8 @@ let selectedToDelete = null
 let toastMessage = ''
 
 async function fetchUsers() {
+    if(users.length > 0) return 
+
     loading = true
     error = null
 
@@ -34,6 +44,7 @@ async function fetchUsers() {
         }
 
         users = data
+        saveUsersToStorage()
 
     } catch (err) {
         error = err.message
@@ -48,6 +59,8 @@ function render() {
     statusMessage.textContent = ''
     backdrop.innerHTML = ''
     btnLoad.disabled = loading
+
+    btnLoad.style.display = users.length === 0 ? 'block' : 'none'
 
     if (loading) {
         statusMessage.textContent = 'Loading...'
@@ -212,6 +225,10 @@ function renderDeleteModal() {
     backdrop.appendChild(modal)
 }
 
+function saveUsersToStorage() {
+    localStorage.setItem('user-list', JSON.stringify(users))
+}
+
 function addNewUser(name, email) {
     const newUser = {
         id: Date.now(),
@@ -222,6 +239,7 @@ function addNewUser(name, email) {
     }
 
     users = [newUser, ...users]
+    saveUsersToStorage()
 
     showToast('✅ User created')
 }
@@ -233,6 +251,7 @@ function updateUserEmail(val) {
 
     isEditing = false
     selectedUserToEdit = null
+    saveUsersToStorage()
 
     showToast('✏️ User updated')
 }
@@ -246,6 +265,7 @@ function cancelUpdateUserEmail() {
 
 function deleteUserFromList() {
     users = users.filter((item) => item.id !== selectedToDelete)
+    saveUsersToStorage()
 
     if (selectedUser?.id === selectedToDelete) {
         selectedUser = null
